@@ -3,5 +3,7 @@ rootProject.name = 'RhymeMaker'
 include ':app'
 include ':react-native-android-statusbar'
 project(':react-native-android-statusbar').projectDir = new File(settingsDir, '../node_modules/react-native-android-statusbar')
-include ':VoiceModule'
+include ':VoiceModule', ':app'
 project(':VoiceModule').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-android-voice')
+include ':react-native-linear-gradient'
+project(':react-native-linear-gradient').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-linear-gradient/android')
