@@ -29,9 +29,6 @@ setCustomText(customTextProps);
 const h = Dimensions.get('window').height;
 const w = Dimensions.get('window').width;
 
-const HEADER_MAX_HEIGHT = 300;
-const HEADER_MIN_HEIGHT=60;
-const HEADER_SCROLL_DISTANCE=HEADER_MAX_HEIGHT-HEADER_MIN_HEIGHT;
 
 export default class RhymeMaker extends Component {
   constructor(props) {

@@ -14,6 +14,8 @@ import {
 var StatusBarAndroid = require('react-native-android-statusbar');
 import SpeechAndroid from 'react-native-android-voice';
 import LinearGradient from 'react-native-linear-gradient';
+import {CoordinatorLayout, BottomSheetBehavior, FloatingActionButton} from 'react-native-bottom-sheet-behavior';
+
 
 StatusBarAndroid.setRGB(255, 148, 0);
 
@@ -212,6 +214,7 @@ export default class RhymeMaker extends Component {
 
   render() {
     return (
+      <CoordinatorLayout>
       <View style={{backgroundColor:'rgb(220,220,220)'}}>
         <Animated.View style={[style.header,{height: this.state.headerHeight}]}>
           <Animated.Image source={{uri:'https://ekostoriesdotcom.files.wordpress.com/2013/12/2013-header-image.png?w=840'}} style={{resizeMode:'cover',flex:1,transform:[{scale: this.state.imageBounce}]}}></Animated.Image>
@@ -249,31 +252,44 @@ export default class RhymeMaker extends Component {
         </Animated.View>
         <View style={[style.body,{height:this.state.bodyHeight}]}>
           {(this.state.view===1)?this._renderPopularWords():null}
+          {(this.state.view===1)?this.wordListenerButton("big"):null}
           {(this.state.view===0)?
-            (<ScrollView>
-              <View style={{flex:1,flexDirection:'row',flexWrap:'wrap',justifyContent:'center',alignItems:'center'}}>
-                {
-                  this.state.words.map((word,i)=>
-                    (<TouchableOpacity key={word.word} style={{padding:10,margin:10,backgroundColor:'rgba(255, 153, 0,'+word.score/300+')',height:30,borderRadius:15,elevation:Math.floor(word.score/100)}}>
-                        <Text style={{fontSize:16,fontFamily:'VanillaExtractRegular',position:'relative',bottom:8}}>{word.word}</Text>
-                    </TouchableOpacity>
-                    )
-                  )
-                }
-              </View>
-              <View style={{flex:1,justifyContent:'center',alignItems:'center',marginBottom:50,marginTop:30,height:40}}>
-                {(this.state.words.length!=this.result.length)?
-                  (<TouchableOpacity style={{backgroundColor:'rgb(255, 106, 0)',height:32,elevation:3}} onPress={this.addWords.bind(this)}>
-                      <Text style={{color:'white',textAlign:'center',fontSize:18,marginLeft:10,marginRight:10,marginTop:5,fontFamily:'Champagne & Limousines'}}>
-                        Give me some more...
-                      </Text>
-                    </TouchableOpacity>
-                ):null}
-              </View>
-          </ScrollView>):null}
-          {(this.state.view===1)?this.wordListenerButton("big"):this.wordListenerButton("small")}
+            (
+                <ScrollView>
+                  <View style={{flex:1,flexDirection:'row',flexWrap:'wrap',justifyContent:'center',alignItems:'center'}}>
+                    {
+                      this.state.words.map((word,i)=>
+                        (<TouchableOpacity key={word.word} style={{padding:10,margin:10,backgroundColor:'rgba(255, 153, 0,'+word.score/300+')',height:30,borderRadius:15,elevation:Math.floor(word.score/100)}}>
+                            <Text style={{fontSize:16,fontFamily:'VanillaExtractRegular',position:'relative',bottom:8}}>{word.word}</Text>
+                        </TouchableOpacity>
+                        )
+                      )
+                    }
+                  </View>
+                  <View style={{flex:1,justifyContent:'center',alignItems:'center',marginBottom:50,marginTop:30,height:40}}>
+                    {(this.state.words.length!=this.result.length)?
+                      (<TouchableOpacity style={{backgroundColor:'rgb(255, 106, 0)',height:32,elevation:3}} onPress={this.addWords.bind(this)}>
+                          <Text style={{color:'white',textAlign:'center',fontSize:18,marginLeft:10,marginRight:10,marginTop:5,fontFamily:'Champagne & Limousines'}}>
+                            Give me some more...
+                          </Text>
+                        </TouchableOpacity>
+                    ):null}
+                  </View>
+              </ScrollView>
+          ):null}
         </View>
       </View>
+
+        <BottomSheetBehavior
+          ref="bottomSheet"
+          peekHeight={50}
+          hideable={false}
+          elevation={2}
+          state={BottomSheetBehavior.STATE_EXPANDED}>
+            <View style={{height:400,backgroundColor:'white'}}><Text>lol</Text></View>
+      </BottomSheetBehavior>
+      <FloatingActionButton ref="fab" elevation={5} backgroundColor={'#ff5900'} src={'https://ekostoriesdotcom.files.wordpress.com/2013/12/2013-header-image.png?w=840'}/>
+  </CoordinatorLayout>
     );
   }
   voiceInputRecieved(e){
@@ -294,6 +310,9 @@ export default class RhymeMaker extends Component {
       }
       else return false;
     }.bind(this));
+  }
+  componentDidMount() {
+    this.refs.fab.setAnchorId(this.refs.bottomSheet)
   }
 }
 
