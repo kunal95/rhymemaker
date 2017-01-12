@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import {
-  Animated,AppRegistry,Dimensions,Image,ToastAndroid,
+  Animated,AppRegistry,Dimensions,Image,ToastAndroid,Clipboard,
   ScrollView,TextInput,StyleSheet,DeviceEventEmitter,BackAndroid,
-  Text,TouchableOpacity,View,TouchableHighlight,TouchableNativeFeedback
+  Text,TouchableOpacity,View
 } from 'react-native';
 import {
   setCustomView,
@@ -14,8 +14,6 @@ import {
 var StatusBarAndroid = require('react-native-android-statusbar');
 import SpeechAndroid from 'react-native-android-voice';
 import LinearGradient from 'react-native-linear-gradient';
-import {CoordinatorLayout, BottomSheetBehavior, FloatingActionButton} from 'react-native-bottom-sheet-behavior';
-
 
 StatusBarAndroid.setRGB(255, 148, 0);
 
@@ -212,9 +210,13 @@ export default class RhymeMaker extends Component {
     this.setState(this.state);
   }
 
+  copyToClipboard(word){
+    Clipboard.setString(word);
+    ToastAndroid.show('"'+word+'" copied to clipboard',ToastAndroid.SHORT);
+  }
+
   render() {
     return (
-      <CoordinatorLayout>
       <View style={{backgroundColor:'rgb(220,220,220)'}}>
         <Animated.View style={[style.header,{height: this.state.headerHeight}]}>
           <Animated.Image source={{uri:'https://ekostoriesdotcom.files.wordpress.com/2013/12/2013-header-image.png?w=840'}} style={{resizeMode:'cover',flex:1,transform:[{scale: this.state.imageBounce}]}}></Animated.Image>
@@ -259,7 +261,7 @@ export default class RhymeMaker extends Component {
                   <View style={{flex:1,flexDirection:'row',flexWrap:'wrap',justifyContent:'center',alignItems:'center'}}>
                     {
                       this.state.words.map((word,i)=>
-                        (<TouchableOpacity key={word.word} style={{padding:10,margin:10,backgroundColor:'rgba(255, 153, 0,'+word.score/300+')',height:30,borderRadius:15,elevation:Math.floor(word.score/100)}}>
+                        (<TouchableOpacity key={word.word} onPress={()=>this.copyToClipboard(word.word)} style={{padding:10,margin:10,backgroundColor:'rgba(255, 153, 0,'+word.score/300+')',height:30,borderRadius:15,elevation:Math.floor(word.score/100)}}>
                             <Text style={{fontSize:16,fontFamily:'VanillaExtractRegular',position:'relative',bottom:8}}>{word.word}</Text>
                         </TouchableOpacity>
                         )
@@ -279,17 +281,6 @@ export default class RhymeMaker extends Component {
           ):null}
         </View>
       </View>
-
-        <BottomSheetBehavior
-          ref="bottomSheet"
-          peekHeight={50}
-          hideable={false}
-          elevation={2}
-          state={BottomSheetBehavior.STATE_EXPANDED}>
-            <View style={{height:400,backgroundColor:'white'}}><Text>lol</Text></View>
-      </BottomSheetBehavior>
-      <FloatingActionButton ref="fab" elevation={5} backgroundColor={'#ff5900'} src={'https://ekostoriesdotcom.files.wordpress.com/2013/12/2013-header-image.png?w=840'}/>
-  </CoordinatorLayout>
     );
   }
   voiceInputRecieved(e){
@@ -310,9 +301,6 @@ export default class RhymeMaker extends Component {
       }
       else return false;
     }.bind(this));
-  }
-  componentDidMount() {
-    this.refs.fab.setAnchorId(this.refs.bottomSheet)
   }
 }
 

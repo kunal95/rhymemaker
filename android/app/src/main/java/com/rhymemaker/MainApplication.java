@@ -17,8 +17,6 @@ import java.util.List;
 import com.wmjmc.reactspeech.VoicePackage;
 import me.neo.react.StatusBarPackage;
 import com.BV.LinearGradient.LinearGradientPackage;
-import com.bottomsheetbehavior.BottomSheetBehaviorPackage;
-import com.oblador.vectoricons.VectorIconsPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -35,9 +33,7 @@ public class MainApplication extends Application implements ReactApplication {
           new MainReactPackage(),
           new StatusBarPackage(),
           new VoicePackage(),
-          new LinearGradientPackage(),
-          new BottomSheetBehaviorPackage(),
-          new VectorIconsPackage()
+          new LinearGradientPackage()
       );
     }
   };
