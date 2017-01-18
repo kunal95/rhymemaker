@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {
   Animated,AppRegistry,Dimensions,Image,ToastAndroid,Clipboard,
   ScrollView,TextInput,StyleSheet,DeviceEventEmitter,BackAndroid,
-  Text,TouchableOpacity,View
+  Text,TouchableOpacity,View,DrawerLayoutAndroid,Linking
 } from 'react-native';
 import {
   setCustomView,
@@ -14,6 +14,7 @@ import {
 var StatusBarAndroid = require('react-native-android-statusbar');
 import SpeechAndroid from 'react-native-android-voice';
 import LinearGradient from 'react-native-linear-gradient';
+import { AdMobBanner, AdMobInterstitial } from 'react-native-admob';
 
 StatusBarAndroid.setRGB(255, 148, 0);
 
@@ -31,9 +32,10 @@ const customTextPropsInput = {
 setCustomTextInput(customTextPropsInput);
 setCustomText(customTextProps);
 
-const h = Dimensions.get('window').height;
-const w = Dimensions.get('window').width;
-
+const h =Dimensions.get('window').height;
+const w =Dimensions.get('window').width;
+var noOfSearches=0;
+const drawerWidth=300;
 const style={
   header:{
     width:w
@@ -41,11 +43,15 @@ const style={
   body:{
     width:w
   },
+  icon:{
+    height:30,
+    width:30
+  },
   mic:{
     big:
     {
       wordListener:{
-        height:h*0.6-100,
+        height:h*0.6-170,
         width:w,
         justifyContent:'center',
         alignItems:'center'
@@ -74,7 +80,7 @@ const style={
         justifyContent:'center',
         alignItems:'center',
         position:'absolute',
-        bottom:50,
+        bottom:20,
         right:20
       },
       roundButton:{
@@ -104,13 +110,13 @@ export default class RhymeMaker extends Component {
     super(props);
     this.result=[];
     this.page=1;
+    this.drawer=null;
     this.state={
       view:1,
       word:"",
-      bodyHeight:h*0.6,
+      bodyHeight:h*0.6-75,
       loaderWidth: new Animated.Value(0),
       headerHeight: new Animated.Value(h*0.4),
-      imageBounce:new Animated.Value(1),
       searchBar_width:new Animated.Value(w-20),
       searchBar_margin:new Animated.Value(10),
       words:[]
@@ -140,11 +146,6 @@ export default class RhymeMaker extends Component {
           <Text style={{color:'rgb(100,100,100)',fontSize:18,margin:10,fontFamily:'Champagne & Limousines Bold'}}>
             Most Popular Words
           </Text>
-          <TouchableOpacity style={{backgroundColor:'rgb(255, 106, 0)',height:25,marginTop:8,position:'absolute',right:20,elevation:2}}>
-            <Text style={{color:'white',fontSize:12,marginLeft:10,marginRight:10,marginTop:5,fontFamily:'Champagne & Limousines Bold'}}>
-              More
-            </Text>
-          </TouchableOpacity>
         </View>
         <ScrollView horizontal={true}>
           {words.map((word) =>
@@ -177,6 +178,11 @@ export default class RhymeMaker extends Component {
             Animated.timing(this.state.loaderWidth,{duration:100,toValue: w*3}).
               start(e=>{
                 if(e.finished){
+                  noOfSearches++;
+                  if(noOfSearches%10==0){
+                    AdMobInterstitial.setAdUnitID('ca-app-pub-6552490392723191/2583268264');
+                    AdMobInterstitial.requestAd(AdMobInterstitial.showAd(function (e){}));
+                  }
                   Animated.timing(this.state.loaderWidth,{duration:300,toValue: 0}).start();
                   var result = JSON.parse(xhttp.responseText);
                   this.result=result;
@@ -194,11 +200,10 @@ export default class RhymeMaker extends Component {
       Animated.timing(this.state.loaderWidth,{duration:1000,toValue: w/1.5}).start();
       if(this.state.view==1){
         Animated.timing(this.state.headerHeight,{duration:1000,toValue: h*0.08,}).start();
-        Animated.timing(this.state.imageBounce,{duration:500,toValue: 0.5}).start();
         Animated.timing(this.state.searchBar_width,{duration:1000,toValue: w}).start();
         Animated.timing(this.state.searchBar_margin,{duration:1000,toValue: 0}).start();
         this.state.view=0;
-        this.state.bodyHeight=h*0.92;
+        this.state.bodyHeight=h*0.92-75;
         this.setState(this.state);
       }
     }
@@ -215,15 +220,44 @@ export default class RhymeMaker extends Component {
     ToastAndroid.show('"'+word+'" copied to clipboard',ToastAndroid.SHORT);
   }
 
+  renderNavigationView(){
+    return (
+      <View>
+        <View style={{height:200,width:drawerWidth,justifyContent:'center',alignItems:'center'}}>
+          <View style={{height:100,width:drawerWidth,position:'absolute',top:0}}>
+            <LinearGradient
+              colors={['rgb(255, 146, 0)','rgb(255, 156, 0)','rgb(255, 166, 0)','rgb(255, 206, 0)']}
+              style={{flex:1}}>
+            </LinearGradient>
+          </View>
+          <TouchableOpacity onPress={()=>Linking.openURL("market://details?id=com.kunal.rhymemaker")}>
+            <Image source={require('./img/logo.png')} style={{height:150,width:drawerWidth/2,resizeMode:'contain'}}/>
+          </TouchableOpacity>
+        </View>
+        <TouchableOpacity style={{height:60,width:drawerWidth}} onPress={()=>Linking.openURL("market://details?id=com.kunal.rhymemaker")}>
+          <Text style={{fontFamily:'CaviarDreams',fontSize:20,marginLeft:35,marginRight:100,color:'rgb(50,50,50)',borderBottomColor:'rgb(240,240,240)',borderBottomWidth:1,height:45}}>Rate App</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={{height:60,width:drawerWidth}} onPress={()=>Linking.openURL("market://details?id=com.kunal.rhymemaker")}>
+          <Text style={{fontFamily:'CaviarDreams',fontSize:20,marginLeft:35,marginRight:100,color:'rgb(50,50,50)',borderBottomColor:'rgb(240,240,240)',borderBottomWidth:1,height:45}}>Feedback</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
   render() {
     return (
+  <DrawerLayoutAndroid
+    ref="drawerLayoutAndroid"
+    drawerWidth={drawerWidth}
+    drawerPosition={DrawerLayoutAndroid.positions.Left}
+    drawerBackgroundColor={'white'}
+    renderNavigationView={() => this.renderNavigationView()}>
       <View style={{backgroundColor:'rgb(220,220,220)'}}>
         <Animated.View style={[style.header,{height: this.state.headerHeight}]}>
-          <Animated.Image source={{uri:'https://ekostoriesdotcom.files.wordpress.com/2013/12/2013-header-image.png?w=840'}} style={{resizeMode:'cover',flex:1,transform:[{scale: this.state.imageBounce}]}}></Animated.Image>
+          <Animated.Image source={require('./img/2013-header-image.png')} style={{height:this.state.headerHeight,width:w}}></Animated.Image>
           <Animated.View style={{backgroundColor:'white',height:h*0.08,width:this.state.searchBar_width,borderRadius:2,position:'absolute',top:this.state.searchBar_margin,margin:this.state.searchBar_margin}}>
              <View style={{flex:1,flexDirection:'row'}}>
-              <TouchableOpacity style={{height:h*0.08,width:31,flex:1,justifyContent:'center',alignItems:'center'}}>
-                <Image source={{uri:'http://downloadicons.net/sites/default/files/wind-icon-62727.png',width:25,height:25}}/>
+              <TouchableOpacity onPress={()=>this.drawer.openDrawer()} style={{height:h*0.08,width:31,flex:1,justifyContent:'center',alignItems:'center'}}>
+                <Image source={require('./img/wind-icon-62727.png')} style={style.icon}/>
               </TouchableOpacity>
               <TextInput
                   placeholder={'Word goes here'}
@@ -239,7 +273,7 @@ export default class RhymeMaker extends Component {
                   onSubmitEditing={(e)=>this.performSearch(e.nativeEvent.text)}
                 />
               <TouchableOpacity style={{height:h*0.08,width:40,flex:1,justifyContent:'center',alignItems:'center'}} onPress={()=>{(this.state.word.length>0)?this.performSearch():this.startVoiceInput()}}>
-                <Image source={{uri:(this.state.word.length>0)?'http://img.freepik.com/free-icon/right-arrow_318-123022.jpg?size=338&ext=jpg':'http://www.myiconfinder.com/uploads/iconsets/128-128-5f4dcd85c91ab1d3f90cd736b56bfc9e.png',width:25,height:25}}/>
+                <Image style={style.icon} source={(this.state.word.length>0)?require('./img/right-arrow_318-123022.jpg'):require('./img/128-128-5f4dcd85c91ab1d3f90cd736b56bfc9e.png')}/>
               </TouchableOpacity>
             </View>
             <Animated.View style={{height:3,width:this.state.loaderWidth,elevation:5}}>
@@ -254,7 +288,6 @@ export default class RhymeMaker extends Component {
         </Animated.View>
         <View style={[style.body,{height:this.state.bodyHeight}]}>
           {(this.state.view===1)?this._renderPopularWords():null}
-          {(this.state.view===1)?this.wordListenerButton("big"):null}
           {(this.state.view===0)?
             (
                 <ScrollView>
@@ -279,8 +312,15 @@ export default class RhymeMaker extends Component {
                   </View>
               </ScrollView>
           ):null}
+          {(this.state.view===1)?this.wordListenerButton("big"):this.wordListenerButton("small")}
         </View>
+        <AdMobBanner
+          bannerSize="smartBannerPortrait"
+          testDeviceID="EMULATOR"
+          adUnitID="ca-app-pub-6552490392723191/3560473865"
+        />
       </View>
+    </DrawerLayoutAndroid>
     );
   }
   voiceInputRecieved(e){
@@ -292,7 +332,6 @@ export default class RhymeMaker extends Component {
     BackAndroid.addEventListener('hardwareBackPress', function() {
       if(this.state.view!=1){
         Animated.timing(this.state.headerHeight,{duration:1000,toValue: h*0.4}).start();
-        Animated.spring(this.state.imageBounce,{toValue: 1,friction:20}).start();
         Animated.timing(this.state.searchBar_width,{duration:1000,toValue: w-20}).start();
         Animated.timing(this.state.searchBar_margin,{duration:1000,toValue: 10}).start();
         this.state.view=1;
@@ -301,6 +340,10 @@ export default class RhymeMaker extends Component {
       }
       else return false;
     }.bind(this));
+    AdMobInterstitial.removeAllListeners();
+  }
+  componentDidMount(){
+    this.drawer=this.refs.drawerLayoutAndroid;
   }
 }
 
