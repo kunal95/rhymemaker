@@ -125,8 +125,8 @@ export default class RhymeMaker extends Component {
   async startVoiceInput(){
       try{
           SpeechAndroid.startSpeech("Spit it!", SpeechAndroid.DEFAULT)
-          .then(text => {alert(text); })
-        .catch(error => { alert(error); });
+          .then(text => { })
+        .catch(error => { });
       }catch(error){
           switch(error){
               case SpeechAndroid.E_VOICE_CANCELLED:
@@ -180,7 +180,7 @@ export default class RhymeMaker extends Component {
                 if(e.finished){
                   noOfSearches++;
                   if(noOfSearches%10==0){
-                    AdMobInterstitial.setAdUnitID('ca-app-pub-6552490392723191/2583268264');
+                    AdMobInterstitial.setAdUnitID('ca-app-pub-6552490392723191/6476267467');
                     AdMobInterstitial.requestAd(AdMobInterstitial.showAd(function (e){}));
                   }
                   Animated.timing(this.state.loaderWidth,{duration:300,toValue: 0}).start();
@@ -317,7 +317,7 @@ export default class RhymeMaker extends Component {
         <AdMobBanner
           bannerSize="smartBannerPortrait"
           testDeviceID="EMULATOR"
-          adUnitID="ca-app-pub-6552490392723191/3560473865"
+          adUnitID="ca-app-pub-6552490392723191/3522801064"
         />
       </View>
     </DrawerLayoutAndroid>

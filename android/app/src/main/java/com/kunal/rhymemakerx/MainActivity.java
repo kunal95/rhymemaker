@@ -1,4 +1,4 @@
-package com.kunal.rhymemaker;
+package com.kunal.rhymemakerx;
 
 import android.app.Activity;
 import android.content.Intent;
