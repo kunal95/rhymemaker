@@ -184,7 +184,12 @@ export default class RhymeMaker extends Component {
                     AdMobInterstitial.requestAd(AdMobInterstitial.showAd(function (e){}));
                   }
                   Animated.timing(this.state.loaderWidth,{duration:300,toValue: 0}).start();
-                  var result = JSON.parse(xhttp.responseText);
+                  var result = [];
+                  try{
+                    JSON.parse(xhttp.responseText);
+                  }catch(e){
+                    alert("Network Error!");
+                  }
                   this.result=result;
                   //cleaning
                   this.result=this.result.filter(function(word){return word.word.length>1})
